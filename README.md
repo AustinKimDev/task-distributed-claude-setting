@@ -1,4 +1,4 @@
-# claude-md
+# task-distributed-claude-setting
 
 Claude Code를 체계적으로 제어하는 글로벌 CLAUDE.md 설정 템플릿입니다.
 
@@ -62,7 +62,7 @@ references/               # 워크플로우에서 참조하는 상세 정책
 ### 1. 클론
 
 ```bash
-git clone https://github.com/<your-username>/claude-md.git
+git clone git@github.com:AustinKimDev/task-distributed-claude-setting.git
 ```
 
 ### 2. 개인 설정 적용
@@ -89,10 +89,10 @@ VAULT="${WIKI_VAULT:-$HOME/path/to/your/vault}"
 
 ```bash
 # 글로벌 설정으로 심볼릭 링크
-ln -s /path/to/claude-md/CLAUDE.md ~/.claude/CLAUDE.md
+ln -s /path/to/task-distributed-claude-setting/CLAUDE.md ~/.claude/CLAUDE.md
 
 # settings.json도 링크 (hooks 사용 시)
-ln -s /path/to/claude-md/settings.json ~/.claude/projects/<project>/settings.json
+ln -s /path/to/task-distributed-claude-setting/settings.json ~/.claude/projects/<project>/settings.json
 ```
 
 ### 4. 훅 스크립트 실행 권한
