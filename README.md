@@ -4,6 +4,19 @@ Claude Code를 체계적으로 제어하는 글로벌 CLAUDE.md 설정 템플릿
 
 작업 분류, 워크트리 기반 브랜치 전략, 병렬 에이전트 실행, 안전 규칙, 스킬 자동 라우팅을 하나의 설정으로 통합합니다.
 
+## Quick Start (AI 자동 설치)
+
+```bash
+git clone git@github.com:AustinKimDev/task-distributed-claude-setting.git
+cd task-distributed-claude-setting
+```
+
+그 다음 Claude Code (또는 Codex)를 열고 한 마디만 하세요:
+
+> SETUP.md 따라서 설치해줘
+
+AI가 환경을 감지하고, 필요한 것만 물어본 뒤, 자동으로 설정을 완료합니다.
+
 ## 이걸 쓰면 뭐가 달라지나
 
 - **작업을 분류하고 확인받은 뒤에만 코드를 건드림** — Fast/Standard/Critical 3단계로 나눠서, 위험한 작업은 반드시 승인을 거침
