@@ -1,9 +1,46 @@
 import { loadConfig } from "./config";
 import { join } from "path";
+import { existsSync } from "fs";
 
 interface SearchOptions {
   project?: string;
   type?: string;
+}
+
+async function findRg(): Promise<string> {
+  // 1. PATH에서 찾기
+  try {
+    const which = Bun.spawnSync(["which", "rg"]);
+    const path = new TextDecoder().decode(which.stdout).trim();
+    if (path && !path.includes("not found")) return path;
+  } catch { /* continue */ }
+
+  // 2. 일반적인 설치 경로
+  const candidates = [
+    "/opt/homebrew/bin/rg",
+    "/usr/local/bin/rg",
+    "/usr/bin/rg",
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+
+  // 3. Claude Code 벤더 바이너리
+  const home = process.env.HOME ?? "";
+  const arch = process.arch === "arm64" ? "arm64" : "x64";
+  const platform = process.platform === "darwin" ? "darwin" : "linux";
+  try {
+    const nvmDir = join(home, ".nvm", "versions", "node");
+    if (existsSync(nvmDir)) {
+      const { readdirSync } = await import("fs");
+      for (const ver of readdirSync(nvmDir)) {
+        const vendorRg = join(nvmDir, ver, "lib", "node_modules", "@anthropic-ai", "claude-code", "vendor", "ripgrep", `${arch}-${platform}`, "rg");
+        if (existsSync(vendorRg)) return vendorRg;
+      }
+    }
+  } catch { /* continue */ }
+
+  return "rg"; // 폴백: PATH에서 찾기를 기대
 }
 
 export async function search(query: string, opts: SearchOptions = {}) {
@@ -14,8 +51,9 @@ export async function search(query: string, opts: SearchOptions = {}) {
     searchPath = join(config.vaultPath, "프로젝트", opts.project);
   }
 
+  const rgPath = await findRg();
   const args = [
-    "rg",
+    rgPath,
     "--type", "md",
     "--ignore-case",
     "--max-count", "3",
@@ -26,7 +64,13 @@ export async function search(query: string, opts: SearchOptions = {}) {
     searchPath,
   ];
 
-  const proc = Bun.spawn(args, { stdout: "pipe", stderr: "pipe" });
+  let proc;
+  try {
+    proc = Bun.spawn(args, { stdout: "pipe", stderr: "pipe" });
+  } catch (e: any) {
+    console.error("ripgrep(rg)를 찾을 수 없습니다. brew install ripgrep으로 설치하세요.");
+    return;
+  }
   const stdout = await new Response(proc.stdout).text();
   await proc.exited;
 
