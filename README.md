@@ -31,6 +31,7 @@ AI가 환경을 감지하고, 필요한 것만 물어본 뒤, 자동으로 설�
 ```
 CLAUDE.md                 # 메인 설정 — Claude Code가 읽는 핵심 지침
 RTK.md                    # RTK (Rust Token Killer) 토큰 절약 프록시 설정
+SETUP.md                  # AI 에이전트용 자동 설치 가이드
 settings.json             # Claude Code settings — hooks, 플러그인, 환경변수
 
 hooks/                    # PreToolUse/PostToolUse/Session 훅 스크립트
@@ -40,7 +41,22 @@ hooks/                    # PreToolUse/PostToolUse/Session 훅 스크립트
   rtk-rewrite.sh                # 명령어를 rtk로 자동 리라이트 (토큰 절약)
   wiki-session-start.sh         # 세션 시작 시 Obsidian vault 읽기 강제
   wiki-stop.sh                  # 세션 종료 시 배운점/결정 기록 강제
-  wiki-post-tool.sh             # 파일 수정 후 위키 저장 필요 여부 리마인드
+
+skills/                   # Claude Code 커스텀 스킬
+  wiki/                   # Obsidian vault 검색/조회 스킬
+    SKILL.md              # 스킬 정의 (Claude Code가 읽는 진입점)
+    cli/                  # wiki CLI — bun 기반 검색 엔진
+    install.sh            # wiki CLI 원커맨드 설치 스크립트
+  open/                   # 세션 시작 시 위키 컨텍스트 로드
+  stop/                   # 세션 종료 시 위키 기록
+  read-project/           # 프로젝트 컨텍스트 빠른 조회
+  generate-context/       # 프로젝트별 CLAUDE.md 자동 생성
+  go/                     # 즉시 실행 모드 전환
+  atomic-commits/         # 변경마다 커밋 강제
+  create-design-md/       # DESIGN.md 생성
+  web-capture/            # 웹 스크린샷 캡처
+
+setup/                    # 설치/설정 관련 파일
 
 workflows/                # 작업 유형별 워크플로우 정의
   new-project.md          # 새 프로젝트 셋업 (Critical)
@@ -148,3 +164,4 @@ Critical → 2단계 승인 → worktree 생성 → 6단계 루프 → 머지 �
 - [RTK](https://github.com/rtk-ai/rtk) — 선택 (토큰 절약 프록시, 없으면 훅이 자동 스킵)
 - [jq](https://jqlang.github.io/jq/) — RTK 훅 사용 시 필요
 - [Obsidian](https://obsidian.md/) — 선택 (위키 기능 사용 시)
+- [Bun](https://bun.sh/) — 선택 (wiki CLI 스킬 사용 시)
