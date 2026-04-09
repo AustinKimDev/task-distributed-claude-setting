@@ -393,7 +393,7 @@ main();
 
 ```bash
 cd ~/.claude/skills/create-design-md
-bun run scripts/analyze-codebase.ts /Users/jidong/workspace/side/jidong-claude-md
+bun run scripts/analyze-codebase.ts /path/to/project
 # Expected: JSON with stack info, design file groups
 ```
 
