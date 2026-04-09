@@ -1,0 +1,11 @@
+{
+  "name": "create-design-md",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "resolve": "bun run scripts/resolve-service.ts",
+    "analyze:codebase": "bun run scripts/analyze-codebase.ts",
+    "preview": "bun run scripts/generate-preview.ts",
+    "playground": "bun run scripts/playground/server.ts"
+  }
+}

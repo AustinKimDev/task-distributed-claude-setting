@@ -1,0 +1,12 @@
+{
+  "name": "web-capture",
+  "version": "1.0.0",
+  "description": "Playwright-based parallel screenshot capture tool",
+  "main": "capture.js",
+  "scripts": {
+    "install-browsers": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}
