@@ -38,9 +38,9 @@ function parseNote(filePath: string, vaultPath: string): IndexEntry | null {
       content: content.trim().slice(0, 2000),
       project,
       type: data.type ?? "",
-      tags: Array.isArray(data.tags) ? data.tags : [],
-      created: data.created ?? "",
-      updated: data.updated ?? "",
+      tags: Array.isArray(data.tags) && data.tags.length > 0 ? data.tags : [""],
+      created: String(data.created ?? ""),
+      updated: String(data.updated ?? ""),
       mtime: stat.mtimeMs,
     };
   } catch { return null; }

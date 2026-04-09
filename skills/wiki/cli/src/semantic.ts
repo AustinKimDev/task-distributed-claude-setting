@@ -46,7 +46,9 @@ export async function semantic(query: string, opts: SemanticOptions = {}) {
   try { table = await db.openTable("notes"); }
   catch { console.log("임베딩 테이블이 없습니다. wiki reindex를 실행하세요."); return; }
 
-  let results = await table.search(queryVec).limit(topK * 2).toArray();
+  // 프로젝트 필터 시 전체에서 필터링 (맛집 등 다수 노트에 밀릴 수 있음)
+  const limit = opts.project ? 500 : topK * 2;
+  let results = await table.search(queryVec).distanceType("cosine").limit(limit).toArray();
   if (opts.project) results = results.filter((r: any) => r.project === opts.project);
   results = results.slice(0, topK);
 
