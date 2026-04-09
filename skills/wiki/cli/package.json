@@ -1,0 +1,17 @@
+{
+  "name": "wiki-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "wiki": "bun run src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "^0.15.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.7.0"
+  }
+}

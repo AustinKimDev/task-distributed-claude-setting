@@ -1,0 +1,5 @@
+# Wiki personal data
+wiki.env
+wiki-data/
+node_modules/
+*.lance/
