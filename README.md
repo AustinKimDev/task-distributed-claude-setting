@@ -4,19 +4,6 @@ Claude Code를 체계적으로 제어하는 글로벌 CLAUDE.md 설정 템플릿
 
 작업 분류, 워크트리 기반 브랜치 전략, 병렬 에이전트 실행, 안전 규칙, 스킬 자동 라우팅을 하나의 설정으로 통합합니다.
 
-## Quick Start (AI 자동 설치)
-
-```bash
-git clone git@github.com:AustinKimDev/task-distributed-claude-setting.git
-cd task-distributed-claude-setting
-```
-
-그 다음 Claude Code (또는 Codex)를 열고 한 마디만 하세요:
-
-> SETUP.md 따라서 설치해줘
-
-AI가 환경을 감지하고, 필요한 것만 물어본 뒤, 자동으로 설정을 완료합니다.
-
 ## 이걸 쓰면 뭐가 달라지나
 
 - **작업을 분류하고 확인받은 뒤에만 코드를 건드림** — Fast/Standard/Critical 3단계로 나눠서, 위험한 작업은 반드시 승인을 거침
@@ -88,46 +75,39 @@ references/               # 워크플로우에서 참조하는 상세 정책
 
 ## 사용법
 
-### 1. 클론
+### 방법 1: AI 자동 설치 (권장)
 
 ```bash
 git clone git@github.com:AustinKimDev/task-distributed-claude-setting.git
+cd task-distributed-claude-setting
 ```
 
-### 2. 개인 설정 적용
+Claude Code를 열고:
 
-플레이스홀더를 본인 환경에 맞게 수정합니다:
+> SETUP.md 따라서 설치해줘
 
-**settings.json** — 훅 경로의 `<HOME>`을 실제 홈 경로로 교체:
-```json
-"command": "/Users/yourname/.claude/hooks/wiki-session-start.sh"
-```
+AI가 환경 감지 → 옵션 질문 (Obsidian, RTK, 언어, 플러그인) → 자동 설정을 진행합니다.
 
-**hooks/wiki-*.sh** — Obsidian vault를 사용하는 경우, vault 경로 설정:
-```bash
-# 방법 1: 쉘 프로필에 환경변수 설정
-export WIKI_VAULT="$HOME/Library/Mobile Documents/com~apple~CloudDocs/obsidian/my-vault"
-
-# 방법 2: 훅 파일에서 직접 수정
-VAULT="${WIKI_VAULT:-$HOME/path/to/your/vault}"
-```
-
-**CLAUDE.md** — `<YOUR_OBSIDIAN_VAULT_PATH>`를 본인 vault 경로로 교체. Obsidian을 안 쓰면 LLM Wiki 섹션 전체를 삭제해도 됩니다.
-
-### 3. Claude Code에 연결
+### 방법 2: 수동 설치
 
 ```bash
-# 글로벌 설정으로 심볼릭 링크
-ln -s /path/to/task-distributed-claude-setting/CLAUDE.md ~/.claude/CLAUDE.md
+git clone git@github.com:AustinKimDev/task-distributed-claude-setting.git
+cd task-distributed-claude-setting
 
-# settings.json도 링크 (hooks 사용 시)
-ln -s /path/to/task-distributed-claude-setting/settings.json ~/.claude/projects/<project>/settings.json
-```
+# 1. 플레이스홀더 수정
+#    - settings.json: <HOME>을 실제 홈 경로로 교체
+#    - CLAUDE.md: <YOUR_OBSIDIAN_VAULT_PATH>를 vault 경로로 교체 (안 쓰면 LLM Wiki 섹션 삭제)
 
-### 4. 훅 스크립트 실행 권한
+# 2. 심볼릭 링크
+ln -sf "$(pwd)/CLAUDE.md" ~/.claude/CLAUDE.md
+ln -sf "$(pwd)/RTK.md" ~/.claude/RTK.md          # RTK 사용 시
+mkdir -p ~/.claude/hooks && cp hooks/* ~/.claude/hooks/
 
-```bash
-chmod +x hooks/*.sh
+# 3. 실행 권한
+chmod +x ~/.claude/hooks/*.sh
+
+# 4. settings.json 반영 (기존 설정이 있으면 수동 머지 필요)
+cp settings.json ~/.claude/settings.json
 ```
 
 ## 작업 흐름 요약
