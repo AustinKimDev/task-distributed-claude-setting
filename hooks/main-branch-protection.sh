@@ -28,14 +28,15 @@ if [[ -z "$FILE_PATH" ]]; then
   exit 0
 fi
 
-# Get git repo root
-REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+# Get the git repo root for the TARGET FILE (not the cwd)
+FILE_DIR=$(dirname "$FILE_PATH")
+REPO_ROOT=$(git -C "$FILE_DIR" rev-parse --show-toplevel 2>/dev/null)
 if [[ -z "$REPO_ROOT" ]]; then
   echo '{}'
   exit 0
 fi
 
-# Only protect files inside the current git repo
+# Only protect files inside the repo
 case "$FILE_PATH" in
   "$REPO_ROOT"/*)
     ;;
@@ -46,8 +47,8 @@ case "$FILE_PATH" in
     ;;
 esac
 
-# Get current branch
-BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+# Get current branch for the TARGET FILE's repo (handles worktrees correctly)
+BRANCH=$(git -C "$FILE_DIR" rev-parse --abbrev-ref HEAD 2>/dev/null)
 
 if [[ "$BRANCH" == "main" || "$BRANCH" == "master" ]]; then
   echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Cannot edit files on main/master branch. Create a feature branch first."}}'

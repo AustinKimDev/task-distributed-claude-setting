@@ -1,29 +1,7 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "bash <HOME>/.claude/statusline-command.sh"
-  },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "enabledPlugins": {
-    "swift-lsp@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "fullstack-dev-skills@fullstack-dev-skills": true,
-    "marketing-skills@marketingskills": true,
-    "firebase@claude-plugins-official": true,
-    "impeccable@impeccable": true,
-    "chrome-devtools-mcp@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "impeccable": {
-      "source": {
-        "source": "github",
-        "repo": "pbakaus/impeccable"
-      }
-    }
-  },
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "SessionStart": [
       {
@@ -43,17 +21,6 @@
           {
             "type": "command",
             "command": "<HOME>/.claude/hooks/wiki-stop.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "<HOME>/.claude/hooks/wiki-post-tool.sh"
           }
         ]
       }
@@ -95,5 +62,28 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash <HOME>/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "fullstack-dev-skills@fullstack-dev-skills": true,
+    "marketing-skills@marketingskills": true,
+    "firebase@claude-plugins-official": true,
+    "impeccable@impeccable": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
+    }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
