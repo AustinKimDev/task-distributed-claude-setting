@@ -46,7 +46,7 @@ On receiving ANY task, read task-classification.md FIRST. Then follow the chain.
 | During workflow execution | references/inner-work-loop.md |
 | User request matches a trigger keyword | references/skill-routing.md |
 | Before destructive/breaking/ambiguous action | references/safety-rules.md |
-| Session start & session end | references/llm-wiki.md |
+| Session start/end, 프로젝트 맥락이 부족할 때 (질문 전에 먼저 검색) | references/llm-wiki.md |
 
 ---
 
