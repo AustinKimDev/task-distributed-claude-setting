@@ -1,11 +1,11 @@
 ---
 name: open
-version: 2.0.0
+version: 3.0.0
 description: |
-  세션 시작 시 장기기억(옵시디언 위키)에서 프로젝트 컨텍스트를 로드한다.
+  세션 시작 시 wiki CLI를 통해 장기기억(옵시디언 위키)에서 프로젝트 컨텍스트를 로드한다.
   프로젝트명을 디렉토리명→git remote→CLAUDE.md 순으로 자동 감지하고,
   프로젝트 파일(package.json, Cargo.toml 등)에서 기술 스택을 자동 탐지한다.
-  최근 3개 결정 + 3개 배운점 + 관련 노하우를 로드하고, git 상태를 요약한다.
+  wiki CLI의 summary + semantic 검색으로 결정/배운점/노하우를 로드하고, git 상태를 요약한다.
   Use when: "open", "시작", "컨텍스트 로드", "이전 작업", "어디까지 했지", 세션 시작 시
 allowed-tools:
   - Bash
@@ -16,8 +16,14 @@ allowed-tools:
 
 # /open — 세션 시작: 장기기억 로드 + 컨텍스트 복원
 
-세션 시작 시 옵시디언 vault에서 현재 프로젝트의 컨텍스트를 로드하고,
+세션 시작 시 wiki CLI를 통해 현재 프로젝트의 컨텍스트를 로드하고,
 이전 세션에서 중단된 작업이 있으면 상태를 복원한다.
+
+## Wiki CLI
+
+```bash
+WIKI_CLI="bun run ~/.claude/skills/wiki/cli/src/index.ts"
+```
 
 ## Step 1: 프로젝트명 감지 (우선순위 순)
 
@@ -71,58 +77,31 @@ ls *.sln *.csproj 2>/dev/null | head -3
 
 추출한 키워드를 `$STACK_KEYWORDS`로 사용 (vault 검색에 활용).
 
-## Step 3: Vault 로드
+## Step 3: Wiki 컨텍스트 로드
+
+### 3a. 프로젝트 요약 로드 (summary)
 
 ```bash
-# wiki.env에서 vault 경로 로드
-source ~/.claude/wiki.env 2>/dev/null
-VAULT="$CLAUDE_WIKI_VAULT"
-
-if [ -z "$VAULT" ]; then
-  echo "⚠️ CLAUDE_WIKI_VAULT가 설정되지 않았습니다. setup/install.sh를 실행하세요."
-  # vault 없이 git 상태만 표시하고 계속 진행
-fi
+$WIKI_CLI summary "$PROJECT"
 ```
 
-### 3a. 프로젝트 노트 존재 확인
+- 결과가 있으면 → 개요 + 최근 결정 + 최근 배운점이 포함됨. Step 3b로.
+- 결과가 없으면 → "이 프로젝트의 위키 노트가 없습니다. 작업 후 /stop에서 자동 생성됩니다." 출력 후 Step 4로.
+
+`wiki summary`의 출력에서 **개요**, **최근 결정 3개**, **최근 배운점 3개**를 추출하여 사용한다.
+
+### 3b. 관련 노하우 검색 (탐지된 스택 키워드 활용)
 
 ```bash
-ls "$VAULT/프로젝트/$PROJECT/" 2>/dev/null
+# 시맨틱 검색으로 스택 키워드 관련 노하우 탐색
+$WIKI_CLI semantic "$STACK_KEYWORDS" --top 5
 ```
 
-- 있으면 → Step 3b, 3c로
-- 없으면 → "이 프로젝트의 위키 노트가 없습니다. 작업 후 /stop에서 자동 생성됩니다." 출력 후 Step 4로
-
-### 3b. 결정 기록 로드 (최근 3개)
-
-```bash
-ls -t "$VAULT/프로젝트/$PROJECT/결정/" 2>/dev/null | head -3
-```
-
-- `결정/` 폴더에서 최근 수정 3개 파일만 읽기
-- 각 결정의 **제목 + 결정 + 이유**만 요약
-- 폴더가 없으면 `결정.md` 인덱스에서 마지막 3개 링크의 파일을 읽기
-
-### 3c. 배운점 로드 (최근 3개)
-
-```bash
-ls -t "$VAULT/프로젝트/$PROJECT/배운점/" 2>/dev/null | head -3
-```
-
-- `배운점/` 폴더에서 최근 수정 3개 파일만 읽기
-- 각 항목의 **제목 + 배운 점**만 요약
-- 폴더가 없으면 `배운점.md` 인덱스에서 마지막 3개 링크의 파일을 읽기
-
-### 3d. 관련 노하우 검색 (탐지된 스택 키워드 활용)
-
-```bash
-# 탐지된 스택 키워드로 vault 노하우 검색 (하드코딩 없음)
-KEYWORDS=$(echo "$STACK_KEYWORDS" | tr ' ' '|' | head -c 100)
-grep -rl "$KEYWORDS" "$VAULT/노하우/" 2>/dev/null | head -5
-```
-
-- 발견된 노하우 파일의 제목만 나열 (본문은 필요시 참조)
-- 키워드가 없으면 프로젝트명으로만 검색
+- 발견된 노하우의 제목만 나열 (본문은 필요시 `wiki read`로 참조)
+- 키워드가 없으면 프로젝트명으로 검색:
+  ```bash
+  $WIKI_CLI search "$PROJECT"
+  ```
 
 ## Step 4: Git 상태 요약
 
@@ -151,12 +130,12 @@ git worktree list | grep -v "$(pwd)" | grep -v "bare"
 최근 커밋: [최근 1줄]
 감지된 스택: [탐지된 주요 기술 3-5개]
 
-최근 결정 (3개):
+최근 결정 (wiki summary 기준):
 - [결정 1 제목]
 - [결정 2 제목]
 - [결정 3 제목]
 
-최근 배운점 (3개):
+최근 배운점 (wiki summary 기준):
 - [배운점 1 제목]
 - [배운점 2 제목]
 - [배운점 3 제목]

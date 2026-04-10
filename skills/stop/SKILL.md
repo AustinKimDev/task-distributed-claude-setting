@@ -1,10 +1,10 @@
 ---
 name: stop
-version: 2.1.0
+version: 3.0.0
 description: |
   세션 종료 전 환경 정리 + 위키 기록을 수행한다.
   워크트리/브랜치 잔재 정리, uncommitted 변경 경고, 태스크 정리,
-  git stash 경고 후 옵시디언 vault에 배운점/결정/노하우를 기록한다.
+  git stash 경고 후 wiki CLI를 활용하여 중복 확인 + 옵시디언 vault에 배운점/결정/노하우를 기록한다.
   Use when: "stop", "끝", "마무리", "정리", "세션 종료", "여기까지"
 allowed-tools:
   - Bash
@@ -19,6 +19,12 @@ allowed-tools:
 
 세션을 마무리하면서 환경 잔재를 정리하고, 작업 내용을 옵시디언 위키에 기록한다.
 
+## Wiki CLI
+
+```bash
+WIKI_CLI="bun run ~/.claude/skills/wiki/cli/src/index.ts"
+```
+
 ## Part A: 환경 정리 (항상 실행)
 
 위키 기록보다 먼저 실행. 코드 변경이 없어도 실행한다.
@@ -30,7 +36,8 @@ git status --short
 ```
 
 - 변경/추가 파일이 있으면 **경고 출력**: `⚠️ 커밋되지 않은 변경이 있습니다: [파일 목록]. 커밋하시겠습니까?`
-- 유저 응답 대기. 커밋 원하면 커밋, 아니면 경고만 남기고 계속 진행.
+- 유저 응답 대기. **유저가 응답할 때까지 Part A의 나머지 단계로 진행하지 않는다.**
+- 커밋 원하면 커밋, 아니면 경고만 남기고 계속 진행.
 
 ### A2. Worktree 정리
 
@@ -102,24 +109,41 @@ git diff --stat HEAD~5..HEAD 2>/dev/null || git diff --stat
 
 코드 변경이 없었으면 (읽기/질문만) → **"코드 변경 없음, 위키 기록 스킵"** 출력 후 Part C로.
 
-### B2. Vault 경로 및 스키마 확인
+### B2. Vault 경로 및 프로젝트 확인
 
-```bash
-# wiki.env에서 vault 경로 로드
-source ~/.claude/wiki.env 2>/dev/null
-VAULT="$CLAUDE_WIKI_VAULT"
-
-if [ -z "$VAULT" ]; then
-  echo "⚠️ CLAUDE_WIKI_VAULT가 설정되지 않았습니다. 위키 기록을 건너뜁니다."
-  # Part C로 바로 이동
-fi
+```
+VAULT=~/Library/Mobile Documents/com~apple~CloudDocs/obsidian/hack-the-dongdong/hack-the-dongdong
 ```
 
-- `$VAULT/_위키-스키마.md` 의 자동 저장 규칙을 따른다
-- 현재 프로젝트에 해당하는 `$VAULT/프로젝트/[프로젝트명]/` 폴더가 있는지 확인
-- 없으면 스키마 §7에 따라 프로젝트 페이지 구조 생성
+⚠️ VAULT 경로는 파일 생성(Write)에만 사용. 읽기/검색은 wiki CLI를 통한다.
+
+프로젝트 노트 존재 확인:
+
+```bash
+$WIKI_CLI summary "$PROJECT"
+```
+
+- 결과가 있으면 → 프로젝트 노트 존재. B3로.
+- 결과가 없으면 → 스키마를 읽고 프로젝트 페이지 구조 생성:
+  ```bash
+  $WIKI_CLI read "_위키-스키마.md"
+  ```
+  스키마 §7에 따라 `$VAULT/프로젝트/$PROJECT/` 폴더 구조 생성.
 
 ### B3. 배운점 기록
+
+#### 중복 확인 (wiki CLI)
+
+기록하려는 배운점의 핵심 키워드로 기존 항목 검색:
+
+```bash
+$WIKI_CLI search "<핵심 키워드>" --project "$PROJECT" --type learning
+```
+
+- 유사 내용이 있으면 → 신규 파일 생성 대신 기존 파일에 보충하거나 스킵
+- 없으면 → 신규 파일 생성
+
+#### 파일 생성 (직접 Write)
 
 해당 프로젝트의 `배운점/` 폴더에 **개별 파일** 생성:
 
@@ -160,13 +184,34 @@ project: 프로젝트명
 
 ### B4. 범용 노하우 분리 (해당 시)
 
+#### 중복 확인 (wiki CLI)
+
+```bash
+$WIKI_CLI search "<노하우 키워드>"
+```
+
+- 기존 노하우가 있으면 → 기존 파일에 내용 추가 (Edit)
+- 없으면 → 신규 파일 생성
+
+#### 파일 생성/수정
+
 배운 점 중 **이 프로젝트에 한정되지 않는 범용 패턴**이 있으면:
 - `$VAULT/노하우/개발/[토픽명].md` 에 별도 파일 생성
 - 프론트매터 포함 (스키마 §2)
 - 프로젝트 배운점에서 `[[노하우/개발/토픽명]]` 링크 추가
-- `$VAULT/_위키-인덱스.md` 갱신
 
 ### B5. 결정 기록 (해당 시)
+
+#### 중복 확인 (wiki CLI)
+
+```bash
+$WIKI_CLI search "<결정 키워드>" --project "$PROJECT" --type decision
+```
+
+- 상충/관련 결정이 있으면 → 기존 파일 업데이트 (Edit) 또는 보고에서 언급
+- 없으면 → 신규 파일 생성
+
+#### 파일 생성
 
 기술 선택, 아키텍처 변경, 접근법 결정이 있었으면:
 - `$VAULT/프로젝트/[프로젝트명]/결정/` 폴더에 **개별 파일** 생성
@@ -211,9 +256,15 @@ project: 프로젝트명
 한 세션 = 한 줄. 액션별 기록이 아닌 세션 단위로 기록한다.
 파일이 없으면 생성.
 
-### B7. 인덱스 갱신 (새 페이지가 있을 때만)
+### B7. 검색 인덱스 갱신
 
-새 파일을 만들었으면 `$VAULT/_위키-인덱스.md` 에 항목 추가.
+모든 파일 쓰기가 완료된 후 wiki CLI로 검색 인덱스를 갱신한다:
+
+```bash
+$WIKI_CLI reindex
+```
+
+이 단계로 새로 생성한 배운점/결정/노하우가 다음 세션의 `wiki search`와 `wiki semantic`에 반영된다.
 
 ---
 
@@ -233,6 +284,8 @@ project: 프로젝트명
 - [페이지명] — [한 줄 요약]
 - [페이지명] — [한 줄 요약]
 (또는: 코드 변경 없음, 위키 기록 스킵)
+
+🔄 검색 인덱스: 갱신 완료 (또는: 변경 없음)
 
 세션을 종료합니다.
 ```
