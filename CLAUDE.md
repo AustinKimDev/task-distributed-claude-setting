@@ -46,7 +46,7 @@ On receiving ANY task, read task-classification.md FIRST. Then follow the chain.
 | Executing a workflow — outer loop (worktree, merge), step sequence, skill hooks | references/inner-work-loop.md |
 | User mentions a keyword/phrase that may map to a skill (e.g. "배포", "버그", "리뷰") | references/skill-routing.md |
 | About to: delete, force-push, change API/schema/env, expand scope, or hit ambiguity | references/safety-rules.md |
-| Session start/end, unfamiliar project context, or before asking user a question the wiki might already answer | references/llm-wiki.md |
+| About to ask the user a question, session start/end, or unfamiliar project context | references/llm-wiki.md |
 
 ---
 
