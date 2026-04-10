@@ -41,12 +41,12 @@ On receiving ANY task, read task-classification.md FIRST. Then follow the chain.
 
 | When | Read |
 |------|------|
-| Every task (FIRST action) | references/task-classification.md |
-| After classification | references/workflow-routing.md |
-| During workflow execution | references/inner-work-loop.md |
-| User request matches a trigger keyword | references/skill-routing.md |
-| Before destructive/breaking/ambiguous action | references/safety-rules.md |
-| Session start/end, or lacking project context (search wiki before asking user) | references/llm-wiki.md |
+| FIRST action on ANY task — before planning, coding, or asking questions | references/task-classification.md |
+| Immediately after classification — match task type to workflow file | references/workflow-routing.md |
+| Executing a workflow — outer loop (worktree, merge), step sequence, skill hooks | references/inner-work-loop.md |
+| User mentions a keyword/phrase that may map to a skill (e.g. "배포", "버그", "리뷰") | references/skill-routing.md |
+| About to: delete, force-push, change API/schema/env, expand scope, or hit ambiguity | references/safety-rules.md |
+| Session start/end, unfamiliar project context, or before asking user a question the wiki might already answer | references/llm-wiki.md |
 
 ---
 
