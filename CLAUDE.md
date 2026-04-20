@@ -39,14 +39,14 @@ Code, variable names, comments, and commit messages follow project conventions.
 
 On receiving ANY task, read task-classification.md FIRST. Then follow the chain.
 
-| When                                                                                 | Read                              |
-| ------------------------------------------------------------------------------------ | --------------------------------- |
-| FIRST action on ANY task — before planning, coding, or asking questions              | references/task-classification.md |
-| Immediately after classification — match task type to workflow file                  | references/workflow-routing.md    |
-| Executing a workflow — outer loop (worktree, merge), step sequence, skill hooks      | references/inner-work-loop.md     |
-| User mentions a keyword/phrase that may map to a skill (e.g. "배포", "버그", "리뷰") | references/skill-routing.md       |
-| About to: delete, force-push, change API/schema/env, expand scope, or hit ambiguity  | references/safety-rules.md        |
-| About to ask the user a question, session start/end, or unfamiliar project context   | references/llm-wiki.md            |
+| When | Read |
+|------|------|
+| FIRST action on ANY task — before planning, coding, or asking questions | references/task-classification.md |
+| Immediately after classification — match task type to workflow file | references/workflow-routing.md |
+| Executing a workflow — outer loop (worktree, merge), step sequence, skill hooks | references/inner-work-loop.md |
+| User mentions a keyword/phrase that may map to a skill (e.g. "배포", "버그", "리뷰") | references/skill-routing.md |
+| About to: delete, force-push, change API/schema/env, expand scope, or hit ambiguity | references/safety-rules.md |
+| About to ask the user a question, session start/end, or unfamiliar project context | references/llm-wiki.md |
 
 ---
 
@@ -69,3 +69,4 @@ Full specification: references/model-routing.md (MUST read before dispatching an
 Summary: Opus orchestrates (classify, plan, dispatch, synthesize). Subagents do the actual work.
 Default subagent model is sonnet. Exploration/search uses haiku. Opus only for complex reasoning.
 Always specify the model parameter — never omit it.
+
