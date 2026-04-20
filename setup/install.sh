@@ -16,6 +16,32 @@ for skill in "$REPO_DIR"/skills/*/; do
 done
 echo ""
 
+# 1b. 루트 파일 & 디렉토리 심링크 (CLAUDE.md, RTK.md, references/, workflows/)
+echo "🔗 루트 파일/디렉토리 심링크 생성..."
+mkdir -p "$HOME/.claude"
+for file in CLAUDE.md RTK.md; do
+  ln -sfn "$REPO_DIR/$file" "$HOME/.claude/$file"
+  echo "  ✓ $file"
+done
+for dir in references workflows; do
+  if [ -d "$HOME/.claude/$dir" ] && [ ! -L "$HOME/.claude/$dir" ]; then
+    mv "$HOME/.claude/$dir" "$HOME/.claude/$dir.bak.$(date +%s)"
+  fi
+  ln -sfn "$REPO_DIR/$dir" "$HOME/.claude/$dir"
+  echo "  ✓ $dir/"
+done
+echo ""
+
+# 1c. hooks 파일별 심링크 (.rtk-hook.sha256 같은 자동 생성 파일 보존)
+echo "🔗 hooks 심링크 생성..."
+mkdir -p "$HOME/.claude/hooks"
+for hook in "$REPO_DIR"/hooks/*; do
+  name=$(basename "$hook")
+  ln -sfn "$hook" "$HOME/.claude/hooks/$name"
+  echo "  ✓ $name"
+done
+echo ""
+
 # 2. ollama 확인 + 모델 풀
 echo "🤖 ollama 확인..."
 if command -v ollama &>/dev/null; then
