@@ -10,10 +10,10 @@ wiki — Obsidian vault 검색 CLI
 
 Usage:
   wiki search <query> [--project <name>] [--type <type>]
-  wiki semantic <query> [--top <n>] [--project <name>]
+  wiki semantic <query> [--top <n>] [--project <name>] [--type <type>]
   wiki recent [--project <name>] [--days <n>]
   wiki summary <project|--all>
-  wiki reindex [--embeddings-only]
+  wiki reindex [--embeddings-only] [--force]
   wiki read <path>
 
 Examples:
@@ -57,7 +57,7 @@ async function main() {
     case "semantic": {
       const query = positional.join(" ");
       if (!query) { console.error("Usage: wiki semantic <query>"); process.exit(1); }
-      await semantic(query, { top: flags.top ? parseInt(flags.top, 10) : undefined, project: flags.project });
+      await semantic(query, { top: flags.top ? parseInt(flags.top, 10) : undefined, project: flags.project, type: flags.type });
       break;
     }
     case "recent": {
@@ -71,7 +71,7 @@ async function main() {
       break;
     }
     case "reindex": {
-      await reindex(flags["embeddings-only"] === "true");
+      await reindex(flags["embeddings-only"] === "true", flags.force === "true");
       break;
     }
     case "read": {

@@ -8,6 +8,7 @@ interface IndexEntry {
   path: string;
   title: string;
   content: string;
+  context: string;  // NEW
   project: string;
   type: string;
   tags: string[];
@@ -32,10 +33,12 @@ function parseNote(filePath: string, vaultPath: string): IndexEntry | null {
     if (!project && relPath.startsWith("프로젝트/")) {
       project = relPath.split("/")[1] ?? "";
     }
+    const context = data.context ?? "";
     return {
       path: relPath,
       title,
-      content: content.trim().slice(0, 2000),
+      content: content.trim().slice(0, 8000),
+      context,
       project,
       type: data.type ?? "",
       tags: Array.isArray(data.tags) && data.tags.length > 0 ? data.tags : [""],
@@ -66,7 +69,7 @@ async function isOllamaRunning(): Promise<boolean> {
   } catch { return false; }
 }
 
-export async function reindex(embeddingsOnly: boolean = false) {
+export async function reindex(embeddingsOnly: boolean = false, force: boolean = false) {
   const config = loadConfig();
   const startTime = Date.now();
   mkdirSync(config.dataDir, { recursive: true });
@@ -86,13 +89,21 @@ export async function reindex(embeddingsOnly: boolean = false) {
   }
 
   const entries: IndexEntry[] = [];
-  const changed: IndexEntry[] = [];
   for (const file of files) {
     const entry = parseNote(file, config.vaultPath);
     if (!entry) continue;
     entries.push(entry);
-    const existing = existingIndex[entry.path];
-    if (!existing || existing.mtime < entry.mtime) changed.push(entry);
+  }
+
+  let changed: IndexEntry[];
+  if (force) {
+    changed = [...entries];
+  } else {
+    changed = [];
+    for (const entry of entries) {
+      const existing = existingIndex[entry.path];
+      if (!existing || existing.mtime < entry.mtime) changed.push(entry);
+    }
   }
 
   if (!embeddingsOnly) {
@@ -123,7 +134,13 @@ export async function reindex(embeddingsOnly: boolean = false) {
   let embedCount = 0;
 
   for (const entry of changed) {
-    const textToEmbed = `${entry.title}\n\n${entry.content}`;
+    const metaParts: string[] = [];
+    if (entry.project) metaParts.push(`project: ${entry.project}`);
+    if (entry.type) metaParts.push(`type: ${entry.type}`);
+    if (entry.tags.length > 0 && entry.tags[0] !== "") metaParts.push(`tags: ${entry.tags.join(", ")}`);
+    if (entry.context) metaParts.push(`context: ${entry.context}`);
+    const metaPrefix = metaParts.length > 0 ? metaParts.join(" | ") + "\n\n" : "";
+    const textToEmbed = `${metaPrefix}${entry.title}\n\n${entry.content}`;
     const vector = await embed(textToEmbed, config.embedModel);
     if (!vector) { console.log(`  ⚠️ 임베딩 실패: ${entry.path}`); continue; }
     records.push({ ...entry, vector });
